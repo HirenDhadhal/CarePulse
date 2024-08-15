@@ -5,44 +5,101 @@ import CustomFormField from '../CustomFormField';
 import SubmitButton from '../SubmitButton';
 import { FormFieldType } from './PatientForm';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
-import { Doctors, GenderOptions, IdentificationTypes } from '@/contants';
+import {
+  Doctors,
+  GenderOptions,
+  IdentificationTypes,
+  PatientFormDefaultValues,
+} from '@/contants';
 import { Label } from '../ui/label';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/router';
-import { UserFormValidation } from '@/lib/validation';
+import { useRouter } from 'next/navigation';
+import { PatientFormValidation } from '@/lib/validation';
 import { z } from 'zod';
 import { SelectItem } from '../ui/select';
 import Image from 'next/image';
 import { FileUploader } from '../ui/FileUploader';
+import { registerPatient } from '@/lib/actions/patient.actions';
 
 const RegisterForm = ({ user }: { user: User }) => {
-  // const router = useRouter();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<z.infer<typeof UserFormValidation>>({
-    resolver: zodResolver(UserFormValidation),
+  const form = useForm<z.infer<typeof PatientFormValidation>>({
+    resolver: zodResolver(PatientFormValidation),
     defaultValues: {
+      ...PatientFormDefaultValues,
       name: '',
       email: '',
       phone: '',
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof UserFormValidation>) => {
+  const onSubmit = async (values: z.infer<typeof PatientFormValidation>) => {
+    console.log('submitted');
+
     setIsLoading(true);
 
+    // Store file info in form data as
+    let formData;
+    if (
+      values.identificationDocument &&
+      values.identificationDocument?.length > 0
+    ) {
+      console.log('In identification document');
+
+      const blobFile = new Blob([values.identificationDocument[0]], {
+        type: values.identificationDocument[0].type,
+      });
+
+      formData = new FormData();
+      formData.append('blobFile', blobFile);
+      formData.append('fileName', values.identificationDocument[0].name);
+    }
+    console.log('Outside identification document');
+    console.log(values.identificationDocument);
+
     try {
-      const user = {
-        name: values.name,
-        email: values.email,
-        phone: values.phone,
+      const patientData = {
+        ...values,
+        userId: user.$id,
+        birthDate: new Date(values.birthDate),
+        identificationDocument: formData,
+        // userId: user.$id,
+        // name: values.name,
+        // email: values.email,
+        // phone: values.phone,
+        // birthDate: new Date(values.birthDate),
+        gender: values.gender,
+        // address: values.address,
+        // occupation: values.occupation,
+        // emergencyContactName: values.emergencyContactName,
+        // emergencyContactNumber: values.emergencyContactNumber,
+        // primaryPhysician: values.primaryPhysician,
+        // insuranceProvider: values.insuranceProvider,
+        // insurancePolicyNumber: values.insurancePolicyNumber,
+        // allergies: values.allergies,
+        // currentMedication: values.currentMedication,
+        // familyMedicalHistory: values.familyMedicalHistory,
+        // pastMedicalHistory: values.pastMedicalHistory,
+        // identificationType: values.identificationType,
+        // identificationNumber: values.identificationNumber,
+        // identificationDocument: values.identificationDocument
+        //   ? formData
+        //   : undefined,
+        // privacyConsent: values.privacyConsent,
       };
 
-      const newUser = await createUser(user);
+      console.log(patientData);
+      console.log(values);
 
-      if (newUser) {
-        router.push(`/patients/${newUser.$id}/register`);
+      console.log(values.birthDate);
+
+      const newPatient = await registerPatient(patientData);
+
+      if (newPatient) {
+        router.push(`/patients/${user.$id}/new-appointment`);
       }
     } catch (error) {
       console.log(error);
@@ -61,7 +118,7 @@ const RegisterForm = ({ user }: { user: User }) => {
 
         <section className='space-y-6'>
           <div className='mb-9 space-y-1'>
-            <h2 className='sub-header'>Personal Information 👋</h2>
+            <h2 className='sub-header'>Personal Information</h2>
           </div>
         </section>
 
@@ -102,7 +159,7 @@ const RegisterForm = ({ user }: { user: User }) => {
             label='Date of Birth'
           />
 
-          <CustomFormField
+          {/* <CustomFormField
             fieldType={FormFieldType.SKELETON}
             control={form.control}
             name='gender'
@@ -125,7 +182,31 @@ const RegisterForm = ({ user }: { user: User }) => {
                 </RadioGroup>
               </FormControl>
             )}
-          />
+          /> */}
+          {/* <CustomFormField
+            fieldType={FormFieldType.SKELETON}
+            control={form.control}
+            name='gender'
+            label='Gender'
+            renderSkeleton={(field) => (
+              <FormControl>
+                <RadioGroup
+                  className='flex h-11 gap-6 xl:justify-between'
+                  value={field.value} // Ensure controlled component with value
+                  onValueChange={(value) => field.onChange(value)} // Update the form state
+                >
+                  {GenderOptions.map((option) => (
+                    <div key={option} className='radio-group'>
+                      <RadioGroupItem value={option} id={option} />
+                      <Label htmlFor={option} className='cursor-pointer'>
+                        {option}
+                      </Label>
+                    </div>
+                  ))}
+                </RadioGroup>
+              </FormControl>
+            )}
+          /> */}
         </div>
 
         <div className='flex flex-col gap-6 xl:flex-row'>
@@ -287,6 +368,35 @@ const RegisterForm = ({ user }: { user: User }) => {
                 <FileUploader files={field.value} onChange={field.onChange} />
               </FormControl>
             )}
+          />
+        </section>
+
+        <section className='space-y-6'>
+          <div className='mb-9 space-y-1'>
+            <h2 className='sub-header'>Consent and Privacy</h2>
+          </div>
+
+          <CustomFormField
+            fieldType={FormFieldType.CHECKBOX}
+            control={form.control}
+            name='treatmentConsent'
+            label='I consent to receive treatment for my health condition.'
+          />
+
+          <CustomFormField
+            fieldType={FormFieldType.CHECKBOX}
+            control={form.control}
+            name='disclosureConsent'
+            label='I consent to the use and disclosure of my health
+            information for treatment purposes.'
+          />
+
+          <CustomFormField
+            fieldType={FormFieldType.CHECKBOX}
+            control={form.control}
+            name='privacyConsent'
+            label='I acknowledge that I have reviewed and agree to the
+            privacy policy'
           />
         </section>
 

@@ -13,7 +13,8 @@ const SubmitButton = ({ isLoading, className, children }: ButtonProps) => {
     <Button
       type='submit'
       disabled={isLoading}
-      className={className || 'shadow-primary-btn w-full'}
+      onClick={console.log('clicked ' + isLoading)}
+      className={className || 'shad-primary-btn w-full'}
     >
       {isLoading ? (
         <div className='flex items-center gap-4'>
