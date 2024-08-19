@@ -159,7 +159,7 @@ const RegisterForm = ({ user }: { user: User }) => {
             label='Date of Birth'
           />
 
-          {/* <CustomFormField
+          <CustomFormField
             fieldType={FormFieldType.SKELETON}
             control={form.control}
             name='gender'
@@ -182,7 +182,7 @@ const RegisterForm = ({ user }: { user: User }) => {
                 </RadioGroup>
               </FormControl>
             )}
-          /> */}
+          />
           {/* <CustomFormField
             fieldType={FormFieldType.SKELETON}
             control={form.control}
