@@ -37,8 +37,6 @@ const RegisterForm = ({ user }: { user: User }) => {
   });
 
   const onSubmit = async (values: z.infer<typeof PatientFormValidation>) => {
-    console.log('submitted');
-
     setIsLoading(true);
 
     // Store file info in form data as
@@ -47,8 +45,6 @@ const RegisterForm = ({ user }: { user: User }) => {
       values.identificationDocument &&
       values.identificationDocument?.length > 0
     ) {
-      console.log('In identification document');
-
       const blobFile = new Blob([values.identificationDocument[0]], {
         type: values.identificationDocument[0].type,
       });
@@ -57,8 +53,6 @@ const RegisterForm = ({ user }: { user: User }) => {
       formData.append('blobFile', blobFile);
       formData.append('fileName', values.identificationDocument[0].name);
     }
-    console.log('Outside identification document');
-    console.log(values.identificationDocument);
 
     try {
       const patientData = {
@@ -90,11 +84,6 @@ const RegisterForm = ({ user }: { user: User }) => {
         //   : undefined,
         // privacyConsent: values.privacyConsent,
       };
-
-      console.log(patientData);
-      console.log(values);
-
-      console.log(values.birthDate);
 
       const newPatient = await registerPatient(patientData);
 
@@ -263,9 +252,9 @@ const RegisterForm = ({ user }: { user: User }) => {
             <SelectItem key={doctor.name + i} value={doctor.name}>
               <div className='flex cursor-pointer items-center gap-2'>
                 <Image
-                  src='/assets/images/register-img.png'
-                  height={1000}
-                  width={1000}
+                  src={doctor.image}
+                  height={32}
+                  width={32}
                   alt='patient'
                   className='side-img max-w-[390px]'
                 />

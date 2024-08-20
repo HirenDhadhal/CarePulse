@@ -13,7 +13,6 @@ const SubmitButton = ({ isLoading, className, children }: ButtonProps) => {
     <Button
       type='submit'
       disabled={isLoading}
-      onClick={console.log('clicked ' + isLoading)}
       className={className || 'shad-primary-btn w-full'}
     >
       {isLoading ? (

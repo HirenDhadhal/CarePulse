@@ -96,8 +96,6 @@ export const registerPatient = async ({
   identificationDocument,
   ...patient
 }: RegisterUserParams) => {
-  console.log('Inside patient actions');
-
   try {
     // Upload file ->  // https://appwrite.io/docs/references/cloud/client-web/storage#createFile
     let file;
@@ -139,8 +137,6 @@ export const getPatient = async (userId: string) => {
       PATIENT_COLLECTION_ID!,
       [Query.equal('userId', [userId])]
     );
-
-    console.log(userId);
 
     // return parseStringify(patients.documents[0]);
     return JSON.parse(JSON.stringify(patients.documents[0])); // Replace parseStringify with JSON method

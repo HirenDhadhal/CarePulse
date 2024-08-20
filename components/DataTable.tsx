@@ -18,6 +18,9 @@ import {
 } from '@/components/ui/table';
 import { Button } from './ui/button';
 import Image from 'next/image';
+import { useEffect, useMemo, useState } from 'react';
+import { decryptKey } from '@/lib/utils';
+import { redirect } from 'next/navigation';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -28,12 +31,41 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
+  const [isClient, setIsClient] = useState(false);
+  const [accessKey, setAccessKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    setIsClient(true);
+
+    if (typeof window !== 'undefined') {
+      const encryptedKey = window.localStorage.getItem('accessKey');
+      if (encryptedKey) {
+        const decryptedKey = decryptKey(encryptedKey);
+        setAccessKey(decryptedKey);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (accessKey && accessKey !== process.env.NEXT_PUBLIC_ADMIN_PASSKEY) {
+      redirect('/');
+    }
+  }, [accessKey]);
+
+  const memoizedData = useMemo(() => data, [data]);
+  const memoizedColumns = useMemo(() => columns, [columns]);
+
+  // Always call useReactTable, no conditionals
   const table = useReactTable({
-    data,
-    columns,
+    data: memoizedData,
+    columns: memoizedColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
   });
+
+  if (!isClient) {
+    return null; // Render nothing on the server to avoid mismatches
+  }
 
   return (
     <div className='data-table'>
@@ -64,13 +96,13 @@ export function DataTable<TData, TValue>({
                 data-state={row.getIsSelected() && 'selected'}
                 className='shad-table-row'
               >
-                {/* {row.getVisibleCells().map((cell) => (
-                  
-                  // <TableCell key={cell.id}>
-                  //   {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  // </TableCell>
-                ))} */}
-                hello
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {[
+                      flexRender(cell.column.columnDef.cell, cell.getContext()),
+                    ]}
+                  </TableCell>
+                ))}
               </TableRow>
             ))
           ) : (
