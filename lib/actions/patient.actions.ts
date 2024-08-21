@@ -139,7 +139,7 @@ export const getPatient = async (userId: string) => {
     );
 
     // return parseStringify(patients.documents[0]);
-    return JSON.parse(JSON.stringify(patients.documents[0])); // Replace parseStringify with JSON method
+    return JSON.parse(JSON.stringify(patients.documents[0]));
   } catch (error) {
     console.error(
       'An error occurred while retrieving the patient details:',

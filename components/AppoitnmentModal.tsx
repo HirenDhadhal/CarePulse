@@ -22,6 +22,8 @@ const AppoitnmentModal = ({
   userId: string;
   appointment?: Appointment;
   type: 'schedule' | 'cancel';
+  title: string;
+  description: string;
 }) => {
   const [open, setOpen] = useState(false);
 
