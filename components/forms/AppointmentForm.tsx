@@ -152,9 +152,9 @@ export function AppointmentForm({
                 <SelectItem key={doctor.name + i} value={doctor.name}>
                   <div className='flex cursor-pointer items-center gap-2'>
                     <Image
-                      src='/assets/images/register-img.png'
-                      height={1000}
-                      width={1000}
+                      src={doctor.image}
+                      height={32}
+                      width={32}
                       alt='patient'
                       className='side-img max-w-[390px]'
                     />
